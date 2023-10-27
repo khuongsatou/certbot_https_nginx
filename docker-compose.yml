@@ -9,9 +9,9 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./volume/nginx/conf/:/etc/nginx/conf.d/:ro
-      - ./volume/certbot/www/:/var/www/certbot/:ro
-      - ./volume/certbot/conf/:/etc/nginx/ssl/:ro
+      - ./volume/nginx/conf/:/etc/nginx/conf.d/:rw
+      - ./volume/certbot/www/:/var/www/certbot/:rw
+      - ./volume/certbot/conf/:/etc/nginx/ssl/:rw
   certbot:
     platform: linux/amd64
     image: certbot/certbot
