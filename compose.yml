@@ -51,17 +51,16 @@ services:
       - ./volume/nginx/html/:/usr/share/nginx/html:rw
       - ./volume/certbot/www/:/var/www/certbot/:rw
       - ./volume/certbot/conf/:/etc/nginx/ssl/:rw
-      # - ./nginx-conf:/etc/nginx/conf.d
     networks:
       - app-network
 
-  # certbot:
-  #   platform: linux/amd64
-  #   image: certbot/certbot
-  #   container_name: certbot_https
-  #   volumes:
-  #     - ./volume/certbot/www/:/var/www/certbot/:rw
-  #     - ./volume/certbot/conf/:/etc/letsencrypt/:rw
+  certbot:
+    platform: linux/amd64
+    image: certbot/certbot
+    container_name: certbot_https
+    volumes:
+      - ./volume/certbot/www/:/var/www/certbot/:rw
+      - ./volume/certbot/conf/:/etc/letsencrypt/:rw
 
 volumes:
   certbot-etc:
