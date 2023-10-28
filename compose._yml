@@ -1,0 +1,77 @@
+version: '3'
+
+services:
+  db:
+    platform: linux/amd64
+    image: mysql:8.0
+    container_name: db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_ROOT_PASSWORD=secret
+    volumes: 
+      - dbdata:/var/lib/mysql
+    command: '--default-authentication-plugin=mysql_native_password'
+    networks:
+      - app-network
+
+  wordpress-fpm:
+    platform: linux/amd64
+    depends_on: 
+      - db
+    image: wordpress:5.1.1-fpm-alpine
+    container_name: wordpress
+    ports:
+      - 8080:9000
+    # restart: unless-stopped
+    env_file: .env
+    environment:
+      - WORDPRESS_DB_HOST=db:3306
+      - WORDPRESS_DB_USER=$MYSQL_USER
+      - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
+      - WORDPRESS_DB_NAME=wordpress
+      
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - app-network
+
+
+  webserver:
+    platform: linux/amd64
+    depends_on:
+      - wordpress-fpm
+    # image: nginx:latest
+    image: nginx:1.15.12-alpine
+    container_name: webserver
+    # restart: always
+    ports:
+      - 81:80
+      # - 443:443
+    volumes:
+      - wordpress:/var/www/html
+      # - ./volume/nginx/conf/:/etc/nginx/conf.d/:rw
+      # - ./volume/nginx/html/:/usr/share/nginx/html:rw
+      - ./volume/certbot/www/:/var/www/certbot/:rw
+      - ./volume/certbot/conf/:/etc/nginx/ssl/:rw
+      - ./nginx-conf:/etc/nginx/conf.d
+   
+     
+  # certbot:
+  #   platform: linux/amd64
+  #   image: certbot/certbot
+  #   container_name: certbot_https
+  #   volumes:
+  #     - ./volume/certbot/www/:/var/www/certbot/:rw
+  #     - ./volume/certbot/conf/:/etc/letsencrypt/:rw
+  
+
+volumes:
+  wordpress:
+  dbdata:
+
+
+networks:
+  app-network:
+    driver: bridge
